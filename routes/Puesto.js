@@ -5,7 +5,7 @@ const IsvalidObjID = require('../helpers/validateObjectId');
 const { Empleado } = require("../models/Empleado");
 const authMiddleware = require('../middleware/auth');
 const IsRRHH = require('../middleware/isRRHH');
-
+const {Departamento} = require('../models/Departamento');
 router.use(authMiddleware);
 router.use(IsRRHH);
 
@@ -15,17 +15,19 @@ router.get('/', (req, res) => {
 
 //para cargar las vistas
 router.get('/getPuestos', async (req, res) => {
-  const puestos = await Puesto.find({ Estado: true, EstaDisponible: true });
+  const puestos = await Puesto.find({ Estado: true, EstaDisponible: true }).populate('Departamento');
   res.send(puestos);
 })
 
-router.get('/create', (req, res) => {
-  res.render('puesto/create', { title: "crear puesto", user: req.user });
+router.get('/create',async (req, res) => {
+  const departamentos = await Departamento.find({Estado:true});
+  res.render('puesto/create', { title: "crear puesto", user: req.user,departamentos });
 });
 
 router.get('/editar/:id', async (req, res) => {
   const puesto = await Puesto.findOne({ _id: req.params.id, Estado: true })
-  res.render('puesto/create', { title: "editar puesto", puesto, user: req.user });
+  const departamentos = await Departamento.find({Estado:true});
+  res.render('puesto/create', { title: "editar puesto", puesto, user: req.user,departamentos });
 });
 
 
@@ -47,6 +49,7 @@ router.post('/', async (req, res) => {
     NivelRiesgo: req.body.NivelRiesgo,
     SalarioMinimo: req.body.SalarioMinimo,
     SalarioMaximo: req.body.SalarioMaximo,
+    Departamento: req.body.Departamento
   });
   puesto = await puesto.save();
 
@@ -64,6 +67,7 @@ router.put('/:id', async (req, res) => {
     NivelRiesgo: req.body.NivelRiesgo,
     SalarioMinimo: req.body.SalarioMinimo,
     SalarioMaximo: req.body.SalarioMaximo,
+    Departamento: req.body.Departamento
   }, { new: true });
 
   if (!puesto) return res.status(404).send({ Errmessage: 'No hay un puesto con el id especificado' });

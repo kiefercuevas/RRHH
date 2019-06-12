@@ -5,11 +5,23 @@ block content
         div(class="row")
             h2( class="col-lg-8 ml-0") Perfil del Candidato
             hr
+            input(type="hidden", id="candidato", value= JSON.stringify(candidato))
             if user.Rol == "RRHH"
+                div(class="row")
+                    div(class="col-lg-4 d-flex justify-content-lg-end")
+                        if !isEmployee
+                            button(id="contratarBtn" class="btn btn-primary my-2") contratar
+                        else
+                            button(id="contratarBtn" disabled=true class="btn btn-warning my-2") contratado
+                    div(class="col-lg-4 d-flex justify-content-lg-end")
+                        if user.Rol == "RRHH"
+                            a(id="backBtn" class="btn btn-info my-2 fas fa-times-circle" href="/api/candidatos")
+                        else
+                            a(id="backBtn" class="btn btn-info my-2 fas fa-times-circle" href="/api/")
+
+            else
                 div(class="col-lg-4 d-flex justify-content-lg-end")
-                    button(class="btn btn-info my-2 " href="/api/") contratar
-            div(class="col-lg-4 d-flex justify-content-lg-end")
-                a(id="backBtn" class="btn btn-info my-2 fas fa-times-circle" href="/api/")
+                        a(id="backBtn" class="btn btn-info my-2 fas fa-times-circle" href="/api/")
     div(class="p-3 pl-0 mb-0 mt-2")
         div(class="row")
         if candidato
@@ -94,4 +106,37 @@ append scripts
           addBtn.setAttribute("href", `${url+"?token="+token}`);
           const headers = {'Content-Type': 'application/json','x-auth-token': token};
           const redirectUrl = `/api/?token=${token}`;
+
+        const candidato = document.querySelector("#candidato");
+        const btncontratar = document.querySelector("#contratarBtn");
+        if(btncontratar){
+            btncontratar.addEventListener('click',() => {
+            bootbox.confirm('Esta seguro de querer contratar a este candidato?',(result) => {
+                if(result){
+                    fetch(`/api/candidatos/contratar/${JSON.parse(candidato.value)._id}`, 
+                    {
+                        method: 'POST', 
+                        mode: 'cors', 
+                        cache: 'no-cache',
+                        credentials: 'same-origin',
+                        headers: headers,
+                        redirect: 'follow',
+                        referrer: 'no-referrer',
+                    })
+                .then(response => response.json())
+                .then(data => {
+                  if(data !== null && !data.Errmessage){
+                    bootbox.alert("Se ha contratado al candidato correctamente",() => {
+                        window.location = redirectUrl;
+                    });
+                  }
+                  else bootbox.alert(data.Errmessage);
+                })
+                .catch(err => bootbox.alert('Ha ocurrido un error '+err));
+                    
+                }
+            })
+        })
+        }
+        
     });

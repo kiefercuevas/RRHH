@@ -8,10 +8,10 @@ const { ExperienciaLaboral } = require('../models/ExperienciaLaboral');
 const router = express.Router();
 const IsvalidObjID = require('../helpers/validateObjectId');
 const authMiddleware = require('../middleware/auth');
-const IsnotRRHH = require('../middleware/notRRHH');
+const NotRRHH = require('../middleware/notRRHH');
 const isRRHH = require('../middleware/isRRHH');
 const hasCandidato =require('../middleware/hasCandidato');
-
+const {Empleado} = require('../models/Empleado');
 router.use(authMiddleware);
 
 
@@ -21,38 +21,93 @@ router.get('/',isRRHH, (req, res) => {
 
 //para cargar las vistas
 router.get('/getCandidatos',isRRHH, async (req, res) => {
-  const candidatos = await Candidato.find();
+  const candidatos = await Candidato.find().populate('PuestoDeseado');
   res.send(candidatos);
 })
 
 
-router.get('/create',[IsnotRRHH,hasCandidato],async (req, res) => {
-  const puestos = await Puesto.find({Estado:true});
+router.get('/create',[NotRRHH,hasCandidato],async (req, res) => {
+  const puestos = await Puesto.find({Estado:true,EstaDisponible:true});
   res.render('candidato/create', { title: "crear candidatos",puestos, user: req.user });
 });
 
-router.get('/editar/:id',IsnotRRHH, async (req, res) => {
-  const candidato = await Candidato.findOne({ _id: req.params.id})
-  res.render('candidato/create', { title: "crear candidato", candidato, user: req.user });
+router.get('/editar/:id',NotRRHH, async (req, res) => {
+  const candidato = await Candidato.findOne({Usuario: req.params.id})
+  const puestos = await Puesto.find({Estado:true,EstaDisponible:true});
+  res.render('candidato/create', { title: "crear candidato",puestos, candidato, user: req.user });
 });
 
+
+
+router.post('/contratar/:id',isRRHH,async (req,res)=> {
+  if (!IsvalidObjID(req.params.id)) return res.status(400).send({ Errmessage: 'El id no es valido' });
+
+  const candidato = await Candidato.findById(req.params.id);
+  
+  if(!candidato) return res.status(404).send({ Errmessage: 'El candidato no existe' })
+  let puesto = await Puesto.findOne({_id:candidato.PuestoDeseado});
+
+  let empleado = new Empleado({
+    Cedula: candidato.Cedula,
+    Nombre: candidato.Nombre,
+    Puesto: puesto._id,
+    Salario: puesto.SalarioMinimo,
+    FechaIngreso: Date.now(),
+    Departamento: puesto.Departamento,
+    Usuario: candidato.Usuario
+  });
+
+  empleado = await empleado.save();
+  if(empleado)
+   puesto = await Puesto.findOneAndUpdate({ _id: puesto._id, Estado: true }, {EstaDisponible: false}, { new: true });
+
+   if(!puesto) return res.status(400).send({ Errmessage: 'Ha ocurrido un error' });
+  res.send(empleado);
+});
+
+
 //para que el candidato vea su perfil
-router.get('/:id',IsnotRRHH, async (req, res) => {
+router.get('/:id',NotRRHH, async (req, res) => {
   if (!IsvalidObjID(req.params.id)) return res.status(400).send({ Errmessage: 'El id no es valido' });
 
   const candidato = await Candidato
-      .findOne({Usuario:req.params.id})
+      .findOne({Usuario:req.params.id});
+  
+  const userid = req.params.id;
+
+  if(!candidato) return res.status(401).send({Errmessage: 'No hay candidatos con este id'});
+  const competencias = await Competencia.find({Usuario:userid,Estado:true});
+  const capacitaciones = await Capacitacion.find({Usuario:userid});
+  const experiencias = await ExperienciaLaboral.find({Usuario: userid});
+
+  candidato.Competencias = competencias;
+  candidato.Capacitaciones = capacitaciones;
+  candidato.Experiencias = experiencias;
+ 
+  const isEmployee = false//(await Empleado.countDocuments({Usuario:req.user._id}) > 0) ? true : false;
+  if (!candidato) return res.status(404).send({ Errmessage: 'El usuario no es un candidato' });
+
+  res.render('candidato/verPerfil',{title:"ver perfil candidato",isEmployee,candidato,user:req.user});
+})
+
+//para recursos humanos
+router.get('/vercandidato/:id',isRRHH, async (req, res) => {
+  if (!IsvalidObjID(req.params.id)) return res.status(400).send({ Errmessage: 'El id no es valido' });
+
+  const candidato = await Candidato
+      .findById(req.params.id)
       .populate('Capacitaciones')
       .populate('Competencias')
       .populate('Experiencias')
       .populate('PuestoDeseado')
 
-  if (!candidato) return res.status(404).send({ Errmessage: 'El usuario no es un candidato' });
+  const isEmployee = (await Empleado.countDocuments({Usuario:candidato.Usuario}) > 0) ? true : false;
+  if (!candidato) return res.status(404).send({ Errmessage: 'El candidato no existe' });
 
-  res.render('candidato/verPerfil',{title:"ver perfil candidato",candidato,user:req.user});
+  res.render('candidato/verPerfil',{title:"ver perfil candidato",isEmployee,candidato,user:req.user});
 })
 
-router.post('/',[IsnotRRHH,hasCandidato], async (req, res) => {
+router.post('/',[NotRRHH,hasCandidato], async (req, res) => {
 
   //validar body request
   const { error } = validate(req.body);
@@ -92,7 +147,7 @@ router.post('/',[IsnotRRHH,hasCandidato], async (req, res) => {
   res.send(candidato);
 });
 
-router.put('/:id',IsnotRRHH, async (req, res) => {
+router.put('/:id',NotRRHH, async (req, res) => {
 
   if (!IsvalidObjID(req.params.id)) return res.status(400).send({ Errmessage: 'El id no es valido' });
 

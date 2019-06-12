@@ -32,6 +32,11 @@ const Puesto = mongoose.model('Puesto', new mongoose.Schema({
   EstaDisponible: {
     type: Boolean,
     default: true,
+  },
+  Departamento:{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Departamento',
+    required: true
   }
 }));
 
@@ -53,6 +58,7 @@ function validate(puesto) {
       .number()
       .required()
       .min(0),
+    Departamento: Joi.string().required()
   };
   return Joi.validate(puesto, schema);
 }

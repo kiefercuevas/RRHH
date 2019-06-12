@@ -22,6 +22,7 @@ router.get('/getEmpleados', async (req, res) => {
   const empleados = await Empleado
     .find({ Estado: true })
     .populate('Puesto')
+    .populate('Departamento')
 
   res.send(empleados)
 })
@@ -33,7 +34,7 @@ router.get('/getEmpleados', async (req, res) => {
 // });
 
 router.get('/editar/:id', async (req, res) => {
-  const puestos = await Puesto.find({ Estado: true, EstaDisponible: true });
+  const puestos = await Puesto.find({ Estado: true});
   const departamentos = await Departamento.find({ Estado: true });
 
   const empleado = await Empleado.findOne({ Estado: true, _id: req.params.id })
@@ -100,26 +101,29 @@ router.put('/:id', async (req, res) => {
 
   //validar puesto
   if (!IsvalidObjID(empleado.Puesto)) return res.status(400).send({ Errmessage: 'El puesto elegido no es valido' });
-  const puesto = await Puesto.countDocuments({ _id: empleado.Puesto });
+  const puesto = await Puesto.findOne({ _id: empleado.Puesto });
   if (!puesto) return res.status(400).send({ Errmessage: "El puesto elegido no existe" });
 
   //validar departamento
   if (!IsvalidObjID(empleado.Departamento)) return res.status(400).send({ Errmessage: 'El departamento elegido no es valido' });
-  const departamento = await Departamento.findOne({ _id: empleado.Departamento });
-  if (!departamento) return res.status(400).send({ Errmessage: "El departamento elegido no existe" });
+  // const departamento = await Departamento.findOne({ _id:  });
+  // if (!departamento) return res.status(400).send({ Errmessage: "El departamento elegido no existe" });
 
-  const user = await Empleado.findOne({ Nombre: empleado.Nombre, Estado: true, _id: { $ne: req.params.id } })
-  if (user) return res.status(400).send({ Errmessage: "Ya existe un empleado con ese nombre" });
+  // const user = await Empleado.findOne({ Nombre: empleado.Nombre, Estado: true, _id: { $ne: req.params.id } })
+  // if (user) return res.status(400).send({ Errmessage: "Ya existe un empleado con ese nombre" });
+  const empleadoSinEditar = await Empleado.findOne({ _id: req.params.id, Estado: true });
+  await Puesto.findOneAndUpdate({_id:empleadoSinEditar.Puesto},{EstaDisponible:true});
 
   const EditarEmpleado = await Empleado.findOneAndUpdate({ _id: req.params.id, Estado: true }, {
     Cedula: empleado.Cedula,
     Nombre: empleado.Nombre,
     Puesto: empleado.Puesto,
-    Departamento: departamento,
+    Departamento: empleado.Departamento,
     Salario: empleado.Salario,
     FechaIngreso: empleado.FechaIngreso,
   }, { new: true });
 
+  await Puesto.findOneAndUpdate({ _id: puesto._id, Estado: true }, {EstaDisponible: false}, { new: true });
   res.send(EditarEmpleado);
 });
 

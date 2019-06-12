@@ -39,6 +39,11 @@ block content
             input(id="SalarioMaximo" type="number" class="form-control col-lg-8" placeHolder="salario maximo del puesto" value=puesto.SalarioMaximo)
           else
             input(id="SalarioMaximo" type="number" class="form-control col-lg-8" placeHolder="salario maximo del puesto" value="0")
+        div(class="form-group col-lg-12 pl-0")
+          label(for="Departamento" class="control-label") Departamento
+            select(id="Departamento" type="text" class="form-control col-lg-12")
+              each departamento in departamentos
+                option(value=`${departamento._id}`) #{departamento.Nombre}
     div(class="form-group col-lg-12 pl-0")
       if puesto != null 
         button(type="submit" class="btn btn-primary col-lg-3 py-2 my-2") Editar
@@ -66,7 +71,8 @@ append scripts
         let NivelRiesgo = document.querySelector("#NivelRiesgo").value;
         let SalarioMinimo = parseFloat(document.querySelector("#SalarioMinimo").value);
         let SalarioMaximo = parseFloat(document.querySelector("#SalarioMaximo").value);
-        
+        let Departamento = document.querySelector("#Departamento").value;
+
         if(Nombre.length === 0 || Nombre.length < 3){
           bootbox.alert("El nombre debe tener al menos 3 caracteres");
         }
@@ -86,9 +92,11 @@ append scripts
         }
         else if(SalarioMinimo >= SalarioMaximo){
           bootbox.alert("El salario minimo debe ser menor al salario maximo");
+        }else if(Departamento.length === 0){
+          bootbox.alert("Debe Elegir un departamento");
         }
         else{
-          let data = {Nombre,NivelRiesgo,SalarioMaximo,SalarioMinimo};
+          let data = {Nombre,NivelRiesgo,SalarioMaximo,SalarioMinimo,Departamento};
             if(puesto != null){
                 fetch(`/api/puestos/${JSON.parse(puesto.value)._id}`, {
                     method: 'PUT', 

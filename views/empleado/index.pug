@@ -20,6 +20,12 @@ block content
 
 append scripts
   script(src="/bower_components/datatables/js/jquery.dataTables.min.js")
+  //-script(src="/bower_components/datatables.net-bs4/js/dataTables.bootstrap4.min.js")
+  script(src="/bower_components/datatables.net-buttons/js/dataTables.buttons.min.js")
+  script(src="/bower_components/datatables.net-buttons/js/buttons.print.min.js")
+  script(src="/bower_components/datatables.net-buttons-dt/js/buttons.dataTables.min.js")
+  script(src="/bower_components/pdfmake/build/pdfmake.min.js")
+  script(src="/bower_components/datatablesnetbuttonsbs4/js/buttons.bootstrap4.min.js")
   script.
       $(document).ready(function () {
         
@@ -32,6 +38,10 @@ append scripts
           var empleadosTable = $("#empleadosTable");
             var datatable = empleadosTable.DataTable(
                 {
+                    dom:'Bfrtip',
+                    buttons: [
+                        'copy', 'excel', 'pdf','print'
+                    ],
                     ajax: {
                         url: "/api/empleados/getEmpleados",
                         dataSrc: "",

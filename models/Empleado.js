@@ -36,7 +36,8 @@ const Empleado = mongoose.model('Empleado', new mongoose.Schema({
   },
   Departamento: {
     required: true,
-    type: DepartamentoSchema,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Departamento'
   },
   Estado: {
     type: Boolean,

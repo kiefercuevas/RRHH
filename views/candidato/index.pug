@@ -61,6 +61,9 @@ append scripts
                         },
                         {
                             data: "PuestoDeseado",
+                            render: function (data) {
+                                return data.Nombre
+                            },
                         },
                         {
                             data: "SalarioDeseado",
@@ -71,7 +74,10 @@ append scripts
                         {
                             data: "_id",
                             render: function (data) {
-                                return `<a class="btn btn-warning btn-xs fa fa-edit" href="/api/candidatos/editar/${data}?token=${token}"></a>`
+                                console.log(data);
+                                return `<a class="btn btn-primary btn-xs fa fa-eye" href="/api/candidatos/vercandidato/${data}?token=${token}"></a>
+                                <a class="btn btn-warning btn-xs fa fa-edit" href="/api/candidatos/editar/${data}?token=${token}"></a>
+                                `
                             },
                         }
                     ],

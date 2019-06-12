@@ -54,7 +54,7 @@ ul(class='sidebar-nav')
     ul
       li
         a(href="/api/empleados" class="addToken") ver Empleados
-      li
+      //-li
         a(href="/api/empleados/create" class="addToken") crear Empleados
   li(class="my-3")
     a(href="#")
@@ -66,7 +66,9 @@ ul(class='sidebar-nav')
       li
         a(href="/api/candidatos/create" class="addToken") crear Candidatos
       li
-        a(href=`/api/candidatos/${user._id}` class="addToken") Ver Candidato
+      if user
+        a(href=`/api/candidatos/${user._id}` class="addToken") Ver perfil
+        a(href=`/api/candidatos/editar/${user._id}` class="addToken") Editar Candidato
   li(class="my-3")
     a(href="#")
       i(class="fas fa-box icon icon-left pl-0 ")  Usuarios
