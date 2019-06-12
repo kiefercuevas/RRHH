@@ -1,0 +1,133 @@
+extends ../layout
+
+block content
+  div(class="p-3 mb-0")
+    div(class="row")
+      if candidato != null         
+        h2( class="col-lg-8 ml-0") Editar candidato
+      else
+         h2( class="col-lg-8 ml-0") Crear candidato
+      hr
+      div(class="col-lg-4 d-flex justify-content-lg-end")
+        a(id="backBtn" class="btn btn-info my-2 fas fa-times-circle" href="/api/candidatos")
+
+  form(id="form" action="/api/candidatos" class="ml-3" FormMethod="POST")
+    div(class="form-group col-lg-12 pl-0")
+      label(for="Nombre" class="control-label") Nombre
+      if candidato != null
+        input(type="hidden", id="candidato", value= JSON.stringify(candidato))
+        input(id="Nombre" type="text" class="form-control col-lg-4" placeHolder="nombre del candidato" value=candidato.Nombre)
+      else
+        input(id="Nombre" type="text" class="form-control col-lg-4" placeHolder="nombre del candidato")
+    div(class="form-group col-lg-12 pl-0")
+      label(for="Cedula" class="control-label") Cedula
+      if candidato != null
+        input(id="Cedula" type="text" class="form-control col-lg-4" placeHolder="ingrese la cedula" value=candidato.Cedula)
+      else
+        input(id="Cedula" type="text" class="form-control col-lg-4" placeHolder="ingrese la cedula")
+    div(class="form-group col-lg-12 pl-0")
+      label(for="PuestoDeseado" class="control-label") Puesto Deseado
+      select(id="PuestoDeseado" type="text" class="form-control col-lg-4")
+        each puesto in puestos
+            option(value=`${puesto._id}`) #{puesto.Nombre}
+    div(class="form-group col-lg-12 pl-0")
+      label(for="SalarioDeseado" class="control-label") Salario al que aspira
+      if candidato != null
+        input(id="SalarioDeseado" type="number" class="form-control col-lg-4" placeHolder="ingrese el Salario" value=candidato.SalarioDeseado)
+      else
+        input(id="SalarioDeseado" type="number" class="form-control col-lg-4" placeHolder="ingrese el Salario")
+    div(class="form-group col-lg-12 pl-0")
+      label(for="RecomendadoPor" class="control-label") Recomendado Por
+      if candidato != null
+        input(id="RecomendadoPor" type="text" class="form-control col-lg-4" placeHolder="ingrese la persona que lo recomendo" value=candidato.RecomendadoPor)
+      else
+        input(id="RecomendadoPor" type="text" class="form-control col-lg-4" placeHolder="ingrese la persona que lo recomendo")
+    div(class="form-group col-lg-12 pl-0")
+      if candidato != null 
+        button(type="submit" class="btn btn-primary col-lg-3 py-2 my-2") Editar
+      else
+        button(type="submit" class="btn btn-primary col-lg-3 py-2 my-2") Guardar
+
+append scripts
+  script.
+    $(document).ready(function () {
+          const tokenName = "RRHHtoken";
+          const addBtn = document.querySelector("#backBtn");
+          const url = addBtn.getAttribute('href');
+          const token = window.localStorage.getItem(tokenName);
+          addBtn.setAttribute("href", `${url+"?token="+token}`);
+          const headers = {'Content-Type': 'application/json','x-auth-token': token};
+          const redirectUrl = `/api/?token=${token}`;
+
+        let form = document.querySelector("#form");
+        let candidato = document.querySelector("#candidato");
+
+      form.addEventListener('submit',function (e){
+        e.preventDefault();
+        
+        //datos candidato
+        const Nombre = document.querySelector("#Nombre").value;
+        const Cedula = document.querySelector("#Cedula").value;
+        const PuestoDeseado = document.querySelector("#PuestoDeseado").value;
+        const RecomendadoPor = document.querySelector("#RecomendadoPor").value;
+        const SalarioDeseado = parseFloat(document.querySelector("#SalarioDeseado").value);
+
+        if(Nombre.length === 0 || Nombre.length < 3){
+          bootbox.alert("El nombre del candidato debe tener al menos 3 caracteres");
+        }else if(Cedula.length === 0 || Cedula.length !== 11){
+            bootbox.alert("La cedula debe tener 11 caracteres");
+        }else if(!SalarioDeseado || SalarioDeseado <= 0 ){
+            bootbox.alert("El salario debe ser mayor a 0");
+        }else if(PuestoDeseado.length === 0){
+            bootbox.alert("Debe elegir un puesto");
+        }else if(RecomendadoPor.length === 0 || RecomendadoPor.length < 3){
+          bootbox.alert("El Recomendador debe tener al menos 3 caracteres");
+        }else{
+            let data = {Nombre,Cedula,PuestoDeseado,SalarioDeseado,RecomendadoPor}
+            if(candidato != null){
+                fetch(`/api/candidatos/${JSON.parse(candidato.value)._id}`, {
+                    method: 'PUT', 
+                    mode: 'cors', 
+                    cache: 'no-cache',
+                    credentials: 'same-origin',
+                    headers: headers,
+                    redirect: 'follow',
+                    referrer: 'no-referrer',
+                    body: JSON.stringify(data)})
+                .then(response => response.json())
+                .then(data => {
+                  if(data !== null && !data.Errmessage){
+                    bootbox.alert("Se ha editado el candidato correctamente",() => {
+                        window.location = redirectUrl;
+                    });
+                  }
+                  else bootbox.alert(data.Errmessage);
+                })
+                .catch(err => bootbox.alert('Ha ocurrido un error '+err));
+            }else{
+              fetch("/api/candidatos", {
+                    method: 'POST', 
+                    mode: 'cors', 
+                    cache: 'no-cache',
+                    credentials: 'same-origin',
+                    headers: headers,
+                    redirect: 'follow',
+                    referrer: 'no-referrer',
+                    body: JSON.stringify(data)})
+                .then(response => response.json())
+                .then(data => {
+                  if(data !== null && !data.Errmessage){
+                    bootbox.alert("Se ha creado el candidato correctamente",() => {
+                        window.location = redirectUrl;
+                    });
+                  }
+                  else bootbox.alert(data.Errmessage);
+                })
+                .catch(err => bootbox.alert('Ha ocurrido un error '+err));
+            }
+        }
+              
+          //
+
+      })
+    })

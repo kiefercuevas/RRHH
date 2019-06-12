@@ -26,24 +26,14 @@ const Candidato = mongoose.model('Candidato', new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Puesto'
   },
-  Departamento: {
-    required: true,
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Departamento'
-  },
   SalarioDeseado: {
     type: Number,
     required: true,
     default: 0,
   },
   Competencias: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Competencia' }],
-  Capacitacion: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Capacitacion' }],
-  Usuario: {
-    required: true,
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Usuario'
-  },
-  ExperienciaLaboral: [ExperienciaLaboralSchema],
+  Capacitaciones: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Capacitacion' }],
+  Experiencias: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Experiencia' }],
   RecomendadoPor: {
     type: String,
     min: 3,
@@ -59,17 +49,20 @@ function validate(candidato) {
     Cedula: Joi.string().regex(pattern).required(),
     SalarioDeseado: Joi.number().required().min(0),
     RecomendadoPor: Joi.string().min(3).max(60),
-    ExperienciaLaboral: Joi.array().items(ExperienciaJoiSchema).required().min(1),
     PuestoDeseado: Joi.string().required(),
-    Competencias: Joi.array().items(Joi.string().required().min(3).max(60)).required().min(1),
-    Capacitacion: Joi.array().items(Joi.string().required().min(3).max(60)).required().min(1),
-    Usuario: Joi.string().required(),
-    Departamento: Joi.string().required(),
   };
   return Joi.validate(candidato, schema);
 }
 
 function validateIdentificationCard(identificationCard) {
+  const excepcionesCedulas = ['00000000018', '11111111123', '00100759932', '00105606543', '00114272360', '00200123640',
+  '00200409772', '00800106971', '01200004166', '01400074875', '01400000282', '03103749672', '03200066940',
+  '03800032522', '03900192284', '04900026260', '05900072869', '07700009346', '00114532330', '03121982479',
+  '40200700675', '40200639953', '00121581750', '00119161853', '22321581834', '00121581800', '09421581768',
+  '22721581818', '90001200901', '00301200901', '40200452735', '40200401324', '10621581792'];
+
+  if(excepcionesCedulas.includes(identificationCard)) return false;
+
   const newIDC = identificationCard.toString().replace("-", '').trim();
   const verificatorDigit = parseInt(newIDC.substring(newIDC.length - 1));
   const weight = [1, 2, 1, 2, 1, 2, 1, 2, 1, 2];

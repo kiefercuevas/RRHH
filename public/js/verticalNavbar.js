@@ -3,7 +3,9 @@ $(document).ready(function () {
 
   const clearToken = document.querySelector("#clearToken")
   if (clearToken) {
-    document.querySelector("#btningresar").remove();
+    let btn = document.querySelector("#btningresar");
+    if(btn) btn.remove();
+    
     clearToken.addEventListener('click', () => {
       window.localStorage.removeItem(tokenName);
       window.location.href = "/api/auth/login";

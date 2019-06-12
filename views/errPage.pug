@@ -5,7 +5,10 @@ block content
     div(class="row")
       h1(class="col-lg-8 ml-0") #{ErrMessage}
       hr
-  if user == null 
+  if user == null
+    h3 
     a(id="btningresar" href="/api/auth/login" class="btn btn-primary p-3 ml-3") Ingresar
-  if clearToken != true
+  if clearToken
     a(id="clearToken" href="/api/auth/login" class="btn btn-primary p-3 ml-3") Ingresar
+  else
+    a(href="/api/" class="btn btn-primary p-3 ml-3 addToken") Volver

@@ -1,0 +1,142 @@
+extends ../layout
+
+block content
+  div(class="container mb-2")
+    div(class="express render pug")
+      h2 Candidatos
+      a(id="addBtn" href=`/api/candidatos/create?token=` class="btn btn-primary")
+        i(class="fa fa-plus") Agregar
+  br
+  table(id="candidatosTable" class="table table-hover table-responsive-md table-bordered ")
+    thead(class="thead-dark")
+      tr
+        th(scope="col") Nombre
+        th(scope="col") Cedula
+        th(scope="col") Puesto Deseado
+        th(scope="col") Salario Deseado
+        th(scope="col") Recomendado Por
+        th(scope="col") Acciones
+
+append scripts
+  script(src="/bower_components/datatables/js/jquery.dataTables.min.js")
+  script.
+      $(document).ready(function () {
+        
+          const tokenName = "RRHHtoken";
+          const addBtn = document.querySelector("#addBtn");
+          const url = addBtn.getAttribute('href');
+          const token = window.localStorage.getItem(tokenName);
+          addBtn.setAttribute("href", `${url+token}`);
+
+          var candidatosTable = $("#candidatosTable");
+            var datatable = candidatosTable.DataTable(
+                {
+                    ajax: {
+                        url: "/api/candidatos/getCandidatos",
+                        dataSrc: "",
+                        headers: { 'x-auth-token': token},
+                        error: function (err) {
+                                if(err.status = 401)
+                                 bootbox.alert("No posee un token de autorizacion",() => {
+                                    window.location = "/api/auth/login";
+                                 });
+                                else if(err.status = 400){
+                                    bootbox.alert("El token de autorizacion es invalido",() => {
+                                    window.location = "/api/auth/login";
+                                });
+                                }
+                                else if(err.status = 403){
+                                    bootbox.alert("El Acceso denegado",() => {
+                                    window.location = "/api/";
+                                });
+                            }
+                        }
+                    },
+                    columns: [
+                        {
+                            data: "Nombre",
+                        },
+                        {
+                            data: "Cedula",
+                        },
+                        {
+                            data: "PuestoDeseado",
+                        },
+                        {
+                            data: "SalarioDeseado",
+                        },
+                        {
+                            data: "RecomendadoPor",
+                        },
+                        {
+                            data: "_id",
+                            render: function (data) {
+                                return `<a class="btn btn-warning btn-xs fa fa-edit" href="/api/candidatos/editar/${data}?token=${token}"></a>`
+                            },
+                        }
+                    ],
+                    "columnDefs": [
+                        { "name": "Nombre","orderable": true, "targets": 0 },
+                        { "name": "Cedula","orderable": true, "targets": 1 },
+                        { "name": "PuestoDeseado","orderable": true, "targets": 2 },
+                        { "name": "SalarioDeseado","orderable": true, "targets": 3 },
+                        { "name": "RecomendadoPor","orderable": true, "targets": 4 },
+                    ],
+                    "autoWidth": false,
+                    "language": {
+                        lengthMenu: "Mostrar _MENU_ registros por pagina",
+                        zeroRecords: "No hay coincidencias",
+                        infoEmpty: "No hay registros disponibles",
+                        info: "Mostrando pagina _PAGE_ de _PAGES_",
+                        infoFiltered: "(filtrado de _MAX_ registros)",
+                        sSearch: "<i class='fa fa-search'></i>",
+                        loadingRecords: "Cargando...",
+                        processing: "Cargando registros",
+                        paginate: {
+                            next: "Siguiente",
+                            previous: "Anterior"
+                        },
+                    },
+                });
+
+            //- candidatosTable.on("click", ".js-remove", function () {
+            //-     var button = $(this);
+            //-     bootbox.confirm("Estas seguro de que desea despedir a este candidato", function (result) {
+            //-         if (result) {
+            //-             $.ajax({
+            //-                 type: "DELETE",
+            //-                 url: `/api/candidatos/${button.attr("data-id")}`,
+            //-                 headers: { 'x-auth-token': token},
+            //-                 success: function (data) {
+            //-                     if (data != null) {
+            //-                         datatable.row(button.parents("tr"))
+            //-                             .remove()
+            //-                             .draw();
+            //-                         bootbox.alert("Se ha despedido el empleado");
+            //-                     } else {
+            //-                         bootbox.alert("No Se ha despedido el empleado, error interno");
+            //-                     }
+            //-                 },
+            //-                 error: function (err) {
+            //-                     if(err.status = 401)
+            //-                      bootbox.alert("No posee un token de autorizacion",() => {
+            //-                         window.location = "/api/auth/login";
+            //-                      });
+            //-                     else if(err.status = 400){
+            //-                         bootbox.alert("El token de autorizacion es invalido",() => {
+            //-                         window.location = "/api/auth/login";
+            //-                     });
+            //-                     }
+            //-                     else if(err.status = 403){
+            //-                         bootbox.alert("El Acceso denegado",() => {
+            //-                         window.location = "/api/";
+            //-                     });
+            //-                 }
+            //-             }
+            //-             });
+            //-         }
+            //-     });
+
+            //- });
+        });
+    

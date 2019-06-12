@@ -58,6 +58,17 @@ ul(class='sidebar-nav')
         a(href="/api/empleados/create" class="addToken") crear Empleados
   li(class="my-3")
     a(href="#")
+      i(class="fas fa-box icon icon-left pl-0 ")  Candidatos
+      i(class="fa fa-chevron-down icon icon-right")
+    ul
+      li
+        a(href="/api/candidatos" class="addToken") Ver Candidatos
+      li
+        a(href="/api/candidatos/create" class="addToken") crear Candidatos
+      li
+        a(href=`/api/candidatos/${user._id}` class="addToken") Ver Candidato
+  li(class="my-3")
+    a(href="#")
       i(class="fas fa-box icon icon-left pl-0 ")  Usuarios
       i(class="fa fa-chevron-down icon icon-right")
     ul

@@ -1,0 +1,97 @@
+extends ../layout
+
+block content
+    div(class="p-3 pl-0 mb-0")
+        div(class="row")
+            h2( class="col-lg-8 ml-0") Perfil del Candidato
+            hr
+            if user.Rol == "RRHH"
+                div(class="col-lg-4 d-flex justify-content-lg-end")
+                    button(class="btn btn-info my-2 " href="/api/") contratar
+            div(class="col-lg-4 d-flex justify-content-lg-end")
+                a(id="backBtn" class="btn btn-info my-2 fas fa-times-circle" href="/api/")
+    div(class="p-3 pl-0 mb-0 mt-2")
+        div(class="row")
+        if candidato
+            h4 Nombre: 
+                span(class="normalText") #{candidato.Nombre}
+            h4 Cedula: 
+                span(class="normalText") #{candidato.Cedula}
+            h4 PuestoDeseado: 
+                span(class="normalText") #{candidato.PuestoDeseado.Nombre}
+            h4 SalarioDeseado: 
+                span(class="normalText") #{candidato.SalarioDeseado}
+            h4 RecomendadoPor: 
+                span(class="normalText") #{candidato.RecomendadoPor}
+            br
+            h4 Competencias:
+                hr
+            table(class="table table-hover table-responsive-md table-bordered ")
+                thead(class="thead-dark")
+                    tr
+                        th(scope="col") Descripcion
+                        th(scope="col") Estado
+                tbody
+                each competencia in candidato.Competencias
+                    tr
+                        td #{competencia.Descripcion}
+                        if competencia.Estado
+                            td Activo
+                        else
+                            td Inactivo
+            h4 Capacitaciones:
+                hr
+            table(class="table table-hover table-responsive-md table-bordered ")
+                thead(class="thead-dark")
+                    tr
+                        th(scope="col") Descripcion
+                        th(scope="col") Nivel
+                        th(scope="col") FechaDesde
+                        th(scope="col") FechaHasta
+                        th(scope="col") Institucion
+                tbody
+                each capacitacion in candidato.Capacitaciones
+                    tr
+                        td #{capacitacion.Descripcion}
+                        td #{capacitacion.Nivel}
+                        -var date = new Date(Date.parse(capacitacion.FechaDesde)).toISOString().split('T')[0]
+                        td #{date}
+                         -var date = new Date(Date.parse(capacitacion.FechaHasta)).toISOString().split('T')[0]
+                        td #{date}
+                        td #{capacitacion.Institucion}
+            br
+            h4 Experiencias laborales:
+                hr
+            table(class="table table-hover table-responsive-md table-bordered ")
+                thead(class="thead-dark")
+                    tr
+                        th(scope="col") Empresa
+                        th(scope="col") PuestoOcupado
+                        th(scope="col") FechaDesde
+                        th(scope="col") FechaHasta
+                        th(scope="col") Salario
+                tbody
+                each experiencia in candidato.Experiencias
+                    tr
+                        td #{experiencia.Empresa}
+                        td #{experiencia.PuestoOcupado}
+                        -var date = new Date(Date.parse(experiencia.FechaDesde)).toISOString().split('T')[0]
+                        td #{date}
+                         -var date = new Date(Date.parse(experiencia.FechaHasta)).toISOString().split('T')[0]
+                        td #{date}
+                        td #{experiencia.Salario}
+                
+            
+            
+
+append scripts
+  script.
+    $(document).ready(function () {
+          const tokenName = "RRHHtoken";
+          const addBtn = document.querySelector("#backBtn");
+          const url = addBtn.getAttribute('href');
+          const token = window.localStorage.getItem(tokenName);
+          addBtn.setAttribute("href", `${url+"?token="+token}`);
+          const headers = {'Content-Type': 'application/json','x-auth-token': token};
+          const redirectUrl = `/api/?token=${token}`;
+    });

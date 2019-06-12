@@ -51,7 +51,7 @@ router.post('/register', async (req, res) => {
 
   const salt = await bcrypt.genSalt(10);
   const pass = await bcrypt.hash(req.body.Clave, salt)
-  const rolUsuario = await Rol.findOne({ Nombre: /^usuario$/i, Estado: true })
+  let rolUsuario = await Rol.findOne({ Nombre: /^usuario$/i, Estado: true })
 
   if (!rolUsuario) {
     const rol = new Rol({

@@ -12,7 +12,7 @@ function auth(req, res, next) {
   try {
     const payload = jwt.verify(token, secret);
 
-    if (!payload.Estatus) return res.status(401).render('errPage', { ErrMessage: "Acceso denegado, usuario desactivado" });
+    if (!payload.Estatus) return res.status(401).render('errPage', { ErrMessage: "Acceso denegado, usuario desactivado",user:req.user });
 
     req.user = payload;
 

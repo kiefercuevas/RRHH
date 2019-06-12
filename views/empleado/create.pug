@@ -80,9 +80,7 @@ append scripts
         const Departamento = document.querySelector("#Departamento").value;
 
         if(Nombre.length === 0 || Nombre.length < 3){
-          bootbox.alert("El nombre debe tener al menos 3 caracteres");
-        }else if(Nombre.length === 0 || Nombre.length < 3){
-            bootbox.alert("El nombre del empleado debe tener al menos 3 caracteres");
+          bootbox.alert("El nombre del empleado  debe tener al menos 3 caracteres");
         }else if(Cedula.length === 0 || Cedula.length !== 11){
             bootbox.alert("La cedula debe tener 11 caracteres");
         }else if(!FechaIngreso || FechaIngreso.length === 0){
