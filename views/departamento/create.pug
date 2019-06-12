@@ -1,0 +1,96 @@
+extends ../layout
+
+block content
+  div(class="p-3 mb-0")
+    div(class="row")
+      if departamento != null         
+        h2( class="col-lg-8 ml-0") Editar Departamentos
+      else
+         h2( class="col-lg-8 ml-0") Crear Departamentos
+      hr
+      div(class="col-lg-4 d-flex justify-content-lg-end")
+        a(id="backBtn" class="btn btn-info my-2 fas fa-times-circle" href="/api/departamentos")
+
+  form(id="form" action="/api/departamentos" class="ml-3" FormMethod="POST")
+    div(class="row ")
+      div(class="col-lg-6")
+        div(class="form-group col-lg-12 pl-0")
+          label(for="Nombre" class="control-label") Nombre
+          if departamento != null
+            input(type="hidden", id="departamento", value= JSON.stringify(departamento))
+            input(id="nombre" type="text" class="form-control col-lg-8" placeHolder="nombre del departamento" value=departamento.Nombre)
+          else
+            input(id="nombre" type="text" class="form-control col-lg-8" placeHolder="nombre del departamento")
+    div(class="form-group col-lg-12 pl-0")
+      if departamento != null 
+        button(type="submit" class="btn btn-primary col-lg-3 py-2 my-2") Editar
+      else
+        button(type="submit" class="btn btn-primary col-lg-3 py-2 my-2") Guardar
+
+append scripts
+  script.
+    $(document).ready(function () {
+
+          const tokenName = "RRHHtoken";
+          const addBtn = document.querySelector("#backBtn");
+          const url = addBtn.getAttribute('href');
+          const token = window.localStorage.getItem(tokenName);
+          addBtn.setAttribute("href", `${url+"?token="+token}`);
+          const headers = {'Content-Type': 'application/json','x-auth-token': token};
+          const redirectUrl = `/api/departamentos?token=${token}`;
+
+      let form = document.querySelector("#form");
+      let departamento = document.querySelector("#departamento");
+      
+      form.addEventListener('submit',function (e){
+        e.preventDefault();
+        let nombre = document.querySelector("#nombre").value;
+        if(nombre.length == 0 || nombre.length < 3){
+          bootbox.alert("El nombre debe tener al menos 3 caracteres");
+        }else{
+          let data = {Nombre:nombre};
+            if(departamento != null){
+                fetch(`/api/departamentos/${JSON.parse(departamento.value)._id}`, {
+                    method: 'PUT', 
+                    mode: 'cors', 
+                    cache: 'no-cache',
+                    credentials: 'same-origin',
+                    headers: {'Content-Type': 'application/json',},
+                    redirect: 'follow',
+                    referrer: 'no-referrer',
+                    body: JSON.stringify(data)})
+                .then(response => response.json())
+                .then(data => {
+                  if(data !== null && !data.Errmessage){
+                    bootbox.alert("Se ha editado el departamento correctamente",() => {
+                        window.location = redirectUrl;
+                    });
+                  }
+                  else bootbox.alert(data.Errmessage);
+                })
+                .catch(err => bootbox.alert('Ha ocurrido un error '+err));
+            }else{
+              fetch("/api/departamentos", {
+                    method: 'POST', 
+                    mode: 'cors', 
+                    cache: 'no-cache',
+                    credentials: 'same-origin',
+                    headers: headers,
+                    redirect: 'follow',
+                    referrer: 'no-referrer',
+                    body: JSON.stringify(data)})
+                .then(response => response.json())
+                .then(data => {
+                  if(data !== null && !data.Errmessage){
+                    bootbox.alert("Se ha creado el departamento correctamente",() => {
+                        window.location = redirectUrl;
+                    });
+                  }
+                  else bootbox.alert(data.Errmessage);
+                })
+                .catch(err => bootbox.alert('Ha ocurrido un error '+err));
+            }
+          //
+        }
+      })
+    })

@@ -1,0 +1,145 @@
+extends ../layout
+
+block content
+  div(class="p-3 mb-0")
+    div(class="row")
+      if empleado != null         
+        h2( class="col-lg-8 ml-0") Editar empleado
+      else
+         h2( class="col-lg-8 ml-0") Crear empleado
+      hr
+      div(class="col-lg-4 d-flex justify-content-lg-end")
+        a(id="backBtn" class="btn btn-info my-2 fas fa-times-circle" href="/api/empleados")
+
+  form(id="form" action="/api/empleados" class="ml-3" FormMethod="POST")
+    div(class="form-group col-lg-12 pl-0")
+      label(for="Nombre" class="control-label") Nombre
+      if empleado != null
+        input(type="hidden", id="empleado", value= JSON.stringify(empleado))
+        input(id="Nombre" type="text" class="form-control col-lg-4" placeHolder="nombre del empleado" value=empleado.Nombre)
+      else
+        input(id="Nombre" type="text" class="form-control col-lg-4" placeHolder="nombre del empleado")
+    div(class="form-group col-lg-12 pl-0")
+      label(for="Cedula" class="control-label") Cedula
+      if empleado != null
+        input(id="Cedula" type="text" class="form-control col-lg-4" placeHolder="ingrese la cedula" value=empleado.Cedula)
+      else
+        input(id="Cedula" type="text" class="form-control col-lg-4" placeHolder="ingrese la cedula")
+    div(class="form-group col-lg-12 pl-0")
+      label(for="FechaIngreso" class="control-label") Fecha de Ingreso
+      if empleado != null
+        -var date = new Date(Date.parse(empleado.FechaIngreso)).toISOString().split('T')[0]
+        input(id="FechaIngreso" type="date" class="form-control col-lg-4" placeHolder="ingrese la Fecha de Ingreso" value=`${date}`)
+      else
+        input(id="FechaIngreso" type="date" class="form-control col-lg-4" placeHolder="ingrese la Fecha de Ingreso")
+    div(class="form-group col-lg-12 pl-0")
+      label(for="Salario" class="control-label") Salario
+      if empleado != null
+        input(id="Salario" type="number" class="form-control col-lg-4" placeHolder="ingrese el Salario" value=empleado.Salario)
+      else
+        input(id="Salario" type="number" class="form-control col-lg-4" placeHolder="ingrese el Salario")
+    div(class="form-group col-lg-12 pl-0")
+      label(for="Puesto" class="control-label") Puesto
+      select(id="Puesto" type="text" class="form-control col-lg-4")
+        each puesto in puestos
+            option(value=`${puesto._id}`) #{puesto.Nombre}
+    div(class="form-group col-lg-12 pl-0")
+      label(for="Departamento" class="control-label") Departamento
+      select(id="Departamento" type="text" class="form-control col-lg-4")
+        each departamento in departamentos
+            option(value=`${departamento._id}`) #{departamento.Nombre}
+    div(class="form-group col-lg-12 pl-0")
+      if empleado != null 
+        button(type="submit" class="btn btn-primary col-lg-3 py-2 my-2") Editar
+      else
+        button(type="submit" class="btn btn-primary col-lg-3 py-2 my-2") Guardar
+
+append scripts
+  script.
+    $(document).ready(function () {
+          const tokenName = "RRHHtoken";
+          const addBtn = document.querySelector("#backBtn");
+          const url = addBtn.getAttribute('href');
+          const token = window.localStorage.getItem(tokenName);
+          addBtn.setAttribute("href", `${url+"?token="+token}`);
+          const headers = {'Content-Type': 'application/json','x-auth-token': token};
+          const redirectUrl = `/api/empleados?token=${token}`;
+
+        let form = document.querySelector("#form");
+        let empleado = document.querySelector("#empleado");
+
+      form.addEventListener('submit',function (e){
+        e.preventDefault();
+        
+        //datos empleado
+        const Nombre = document.querySelector("#Nombre").value;
+        const Cedula = document.querySelector("#Cedula").value;
+        const FechaIngreso = document.querySelector("#FechaIngreso").value;
+        const Salario = parseFloat(document.querySelector("#Salario").value);
+        const Puesto = document.querySelector("#Puesto").value;
+        const Departamento = document.querySelector("#Departamento").value;
+
+        if(Nombre.length === 0 || Nombre.length < 3){
+          bootbox.alert("El nombre debe tener al menos 3 caracteres");
+        }else if(Nombre.length === 0 || Nombre.length < 3){
+            bootbox.alert("El nombre del empleado debe tener al menos 3 caracteres");
+        }else if(Cedula.length === 0 || Cedula.length !== 11){
+            bootbox.alert("La cedula debe tener 11 caracteres");
+        }else if(!FechaIngreso || FechaIngreso.length === 0){
+            bootbox.alert("Debe introducir la fecha de ingreso");
+        }else if(!Salario || Salario <= 0 ){
+            bootbox.alert("El salario debe ser mayor a 0");
+        }else if(Puesto.length === 0){
+            bootbox.alert("Debe elegir un puesto");
+        }else if(Departamento.length === 0){
+            bootbox.alert("Debe elegir un Departamento");
+        }else{
+            let data = {Nombre,Cedula,FechaIngreso,Salario,Puesto,Departamento,}
+            console.log(data)
+            if(empleado != null){
+                fetch(`/api/empleados/${JSON.parse(empleado.value)._id}`, {
+                    method: 'PUT', 
+                    mode: 'cors', 
+                    cache: 'no-cache',
+                    credentials: 'same-origin',
+                    headers: headers,
+                    redirect: 'follow',
+                    referrer: 'no-referrer',
+                    body: JSON.stringify(data)})
+                .then(response => response.json())
+                .then(data => {
+                  if(data !== null && !data.Errmessage){
+                    bootbox.alert("Se ha editado el empleado correctamente",() => {
+                        window.location = redirectUrl;
+                    });
+                  }
+                  else bootbox.alert(data.Errmessage);
+                })
+                .catch(err => bootbox.alert('Ha ocurrido un error '+err));
+            }else{
+              //- fetch("/api/empleados", {
+              //-       method: 'POST', 
+              //-       mode: 'cors', 
+              //-       cache: 'no-cache',
+              //-       credentials: 'same-origin',
+              //-       headers: headers,
+              //-       redirect: 'follow',
+              //-       referrer: 'no-referrer',
+              //-       body: JSON.stringify(data)})
+              //-   .then(response => response.json())
+              //-   .then(data => {
+              //-     if(data !== null && !data.Errmessage){
+              //-       bootbox.alert("Se ha creado el usuario correctamente",() => {
+              //-           window.location = redirectUrl;
+              //-       });
+              //-     }
+              //-     else bootbox.alert(data.Errmessage);
+              //-   })
+              //-   .catch(err => bootbox.alert('Ha ocurrido un error '+err));
+            }
+        }
+              
+          //
+
+      })
+    })

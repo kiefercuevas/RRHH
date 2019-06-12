@@ -1,0 +1,132 @@
+extends ../layout
+
+block content
+  div(class="container mb-2")
+    div(class="express render pug")
+      h2 Competencias
+      a(id="addBtn" href=`/api/competencias/create?token=` class="btn btn-primary")
+        i(class="fa fa-plus") Agregar
+  br
+  table(id="competenciasTable" class="table table-hover table-responsive-md table-bordered ")
+    thead(class="thead-dark")
+      tr
+        th(scope="col") Nombre
+        th(scope="col") Estado
+        th(scope="col") Acciones
+
+append scripts
+  script(src="/bower_components/datatables/js/jquery.dataTables.min.js")
+  script.
+        $(document).ready(function () {
+
+          const tokenName = "RRHHtoken";
+          const addBtn = document.querySelector("#addBtn");
+          const url = addBtn.getAttribute('href');
+          const token = window.localStorage.getItem(tokenName);
+          addBtn.setAttribute("href", `${url+token}`);
+
+          var competenciasTable = $("#competenciasTable");
+            var datatable = competenciasTable.DataTable(
+                {
+                    ajax: {
+                        url: "/api/competencias/getCompetencias",
+                        dataSrc: "",
+                        headers: { 'x-auth-token': token },
+                        error: function (err) {
+                                if(err.status = 401)
+                                 bootbox.alert("No posee un token de autorizacion",() => {
+                                    window.location = "/api/auth/login";
+                                 });
+                                else if(err.status = 400){
+                                    bootbox.alert("El token de autorizacion es invalido",() => {
+                                    window.location = "/api/auth/login";
+                                });
+                                }
+                                else if(err.status = 403){
+                                    bootbox.alert("El Acceso denegado",() => {
+                                    window.location = "/api/";
+                                });
+                            }
+                        }
+                    },
+                    columns: [
+                        {
+                            data: "Descripcion",
+                        },
+                        {
+                            data: "Estado",
+                            render: function (data){
+                              return (data === true) ? "Activo" :"Inactivo"
+                            }
+                        },
+                        {
+                            data: "_id",
+                            render: function (data) {
+                                return `<a class="btn btn-warning btn-xs fa fa-edit" href="/api/competencias/editar/${data}?token=${token}"></a>
+                                        <button type="button" data-id="${data}" class="btn btn-danger btn-xs fas fa-times-circle js-remove"></button>
+                                               `
+                            },
+                        }
+                    ],
+                    "columnDefs": [
+                        { "name": "Descripcion","orderable": true, "targets": 0 },
+                        { "name": "Estado","orderable": true, "targets": 1 },
+                    ],
+                    "autoWidth": false,
+                    "language": {
+                        lengthMenu: "Mostrar _MENU_ registros por pagina",
+                        zeroRecords: "No hay coincidencias",
+                        infoEmpty: "No hay registros disponibles",
+                        info: "Mostrando pagina _PAGE_ de _PAGES_",
+                        infoFiltered: "(filtrado de _MAX_ registros)",
+                        sSearch: "<i class='fa fa-search'></i>",
+                        loadingRecords: "Cargando...",
+                        processing: "Cargando registros",
+                        paginate: {
+                            next: "Siguiente",
+                            previous: "Anterior"
+                        },
+                    },
+                });
+
+            competenciasTable.on("click", ".js-remove", function () {
+                var button = $(this);
+                bootbox.confirm("Estas seguro de que deseas eliminar esta competencia", function (result) {
+                    if (result) {
+                        $.ajax({
+                            type: "DELETE",
+                            url: `/api/competencias/${button.attr("data-id")}`,
+                            headers: { 'x-auth-token': token},
+                            success: function (data) {
+                                if (data != null) {
+                                    datatable.row(button.parents("tr"))
+                                        .remove()
+                                        .draw();
+                                    bootbox.alert("Se ha borrado la competencia");
+                                } else {
+                                    bootbox.alert("No Se ha borrado la competencia, error interno");
+                                }
+                            },
+                           error: function (err) {
+                                if(err.status = 401)
+                                 bootbox.alert("No posee un token de autorizacion",() => {
+                                    window.location = "/api/auth/login";
+                                 });
+                                else if(err.status = 400){
+                                    bootbox.alert("El token de autorizacion es invalido",() => {
+                                    window.location = "/api/auth/login";
+                                });
+                                }
+                                else if(err.status = 403){
+                                    bootbox.alert("El Acceso denegado",() => {
+                                    window.location = "/api/";
+                                });
+                            }
+                        }
+                        });
+                    }
+                });
+
+            });
+        });
+    

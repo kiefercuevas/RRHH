@@ -1,0 +1,777 @@
+body {
+
+}
+
+/* Set padding to keep content from hitting the edges */
+.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Override the default bootstrap behavior where horizontal description lists 
+   will truncate terms that are too long to fit in the left column 
+*/
+.dl-horizontal dt {
+    white-space: normal;
+}
+
+/* Set width on the form input elements since they're 100% wide by default */
+
+.field-validation-error{
+    color: red;
+}
+.input-validation-error{
+    border: 2px solid red;
+}
+
+/*vertical nav*/
+
+#sidebar-wrapper {
+    z-index: 1;
+    position: absolute;
+    width: 250px;
+    height: 100%;
+    overflow-y: hidden;
+    background: #343a40;
+    padding-top: 50px;
+    transition: width 0.5s ease-in-out;
+}
+
+/*main content*/
+#page-content-wrapper {
+    width: 100%;
+    position: absolute;
+    padding-top: 6rem;
+    overflow-y: scroll;
+    height: 100%;
+    transition: padding 0.5s ease-in-out;
+    padding-left: 250px;
+}
+
+/*show-menu on click*/
+#wrapper.menu-hide #sidebar-wrapper {
+    width: 0px;
+    transition: width 0.5s ease-in-out;
+}
+#wrapper.menu-hide #page-content-wrapper {
+    padding-left: 0px;
+    transition: padding 0.5s ease-in-out;
+}
+
+/*sidebar styling*/
+
+.sidebar-nav{
+    padding: 0;
+    list-style: none;
+    width: 100%;
+}
+
+.sidebar-nav ul{
+    list-style: none;
+    padding: 0px;
+}
+
+.sidebar-nav li{
+    text-indent: 20px;
+    line-height: 40px;
+}
+
+.sidebar-nav li a{
+    display: block;
+    text-decoration: none;
+    color: white;
+    padding: 15px 20px;
+}
+
+
+.sidebar-nav .icon{
+    font-size: 17px;
+    padding-top: 12px;
+}
+
+.sidebar-nav .icon.icon-left{
+    float: left;
+    margin-right: 10px;
+}
+
+.sidebar-nav .icon.icon-right{
+    float: right;
+    margin-left: 10px;
+}
+
+.sidebar-nav ul{
+    display: none;
+}
+
+.sidebar-nav ul li a{
+    background: #454d54;
+    color: white !important;
+}
+
+
+.sidebar-nav .active-menu-item > a{
+    background: #5c6770 !important;
+    color: #fff;
+}
+
+/* home item*/
+.home {
+    display: flex;
+    flex-direction: row;
+    border: 2px solid #eee;
+    box-shadow: 5px 5px 10px grey;
+    padding: 1.2em;
+    justify-content: space-between;
+}
+
+.homeItem {
+    border: 0;
+    border-left: 1px solid #eee;
+    flex: 25%;
+}
+
+.homeItem:first-child {
+    border-left: 0;
+}
+
+.homeNumber {
+    font-size: 2em;
+}
+
+.siteLink {
+    display: flex;
+    flex-direction: row;
+    border: 2px solid #eee;
+    box-shadow: 5px 5px 10px grey;
+    padding: 1.2em;
+    justify-content: space-between;
+    margin-right:0;
+}
+.siteLinkItem {
+    border: 0;
+    flex: 12.5%;
+}
+
+.siteLinkItem:nth-child(1) .siteLinkitemContent {
+    background-color: #66bb6a;
+}
+
+.siteLinkItem:nth-child(2) .siteLinkitemContent {
+    background-color: #ffa726 ;
+}
+
+.siteLinkItem:nth-child(3) .siteLinkitemContent {
+    background-color: #9e9e9e ;
+}
+
+.siteLinkItem:nth-child(4) .siteLinkitemContent {
+    background-color: #2E2E2E;
+}
+
+.siteLinkItem:nth-child(5) .siteLinkitemContent {
+    background-color: #37474F;
+}
+
+.siteLinkItem:nth-child(6) .siteLinkitemContent {
+    background-color: rgba(96, 125, 139, 0.7) ;
+}
+
+.siteLinkItem:nth-child(7) .siteLinkitemContent {
+    background-color: rgba(121, 85, 72, 0.7) ;
+}
+
+.siteLinkItem:nth-child(8) .siteLinkitemContent {
+    background-color: #59698d;
+}
+
+.siteLinkitemContent {
+    border-radius: 5px;
+    color: white;
+    text-decoration: none;
+    margin-left: 0.2em;
+}
+
+.siteLinkitemContent a {
+     color: white;
+}
+
+/*form ventas */
+.totalPrice {
+    font-size: 1.7em;
+}
+
+.trSize{
+    height:30px;
+}
+.salesform{
+    width:100%;
+}
+
+.inputDiv input[type=text] {
+    width: 0px;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+    padding: 0;
+    height: 38px;
+    border: 0;
+    -webkit-transition: all 0.4s ease-in-out;
+    transition: all 0.4s ease-in-out;
+}
+
+
+.showIcon {
+    width: 100% !important;
+    border: 1px solid #ced4da !important;
+    padding: 12px 20px 12px 10px !important;
+}
+
+.SearchSelect {
+    width: 0 !important;
+}
+
+/*table ventas productos*/
+
+.salesTableWrapper {
+    padding-right: 0;
+}
+
+#salesProductTableDiv {
+    max-height: 524px;
+    overflow-y: scroll;
+    height: 524px;
+    padding: 0 !important;
+}
+#salesTableFormDiv{
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+}
+
+
+.totalDiv {
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+    padding: 12px 20px 12px 10px;
+    height: 100%;
+}
+
+.TotalAndSalesButtonDiv {
+    padding-right: 0px;
+    padding-left: 0px;
+    margin-top: 1em;
+    margin-left:0;
+}
+
+.salesbuttonDiv{
+    padding-right: 0px;
+}
+
+#salesButton {
+    border-radius: 4px;
+    height: 100%;
+    width: 100%;
+}
+
+
+.th-sticky th{
+    position: sticky;
+    top: 0;
+}
+
+.salesButtonText,
+.addButtonText {
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+
+.salesButtonText {
+    color: black;
+    padding-right: 0.5em;
+}
+
+.addButtonText {
+    padding-left: 0.5em;
+}
+
+
+
+.formWith {
+    width: 70px;
+}
+
+td.Inputnumber {
+    width:90px;
+}
+
+
+
+
+
+
+
+/*paginacion*/
+.pagination > li > a, .pagination > li > span {
+    background-color: white;
+    color: black;
+}
+
+.pagination > li.active > a.page-link {
+    background-color: black;
+    border-color: black;
+}
+
+.dropdown-item:hover{
+    background-color:black;
+    color:white;
+}
+
+
+/* transaction details*/
+
+.PersonDetailsTransactionDiv {
+    height: 110px;
+    overflow: scroll;
+    overflow-x: hidden;
+    border: 2px solid #eee;
+    border-radius: 5%;
+    
+}
+
+.PersonDetailsTelephoneDiv {
+    height: 110px;
+    overflow: scroll;
+    overflow-x: hidden;
+    border: 2px solid #eee;
+    border-radius: 5%;
+}
+
+/*save product style*/
+
+.image {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 5px;
+    margin-bottom:20px;
+    width:90%;
+    height:250px;
+}
+
+.opcionalLabel{
+    font-weight:200;
+}
+
+
+
+/*factura*/
+
+.buttons{
+    display:flex;
+}
+
+.printButton{
+    flex:90%;
+}
+
+.backButton {
+    display: flex;
+    flex: 10%;
+    justify-content: flex-end;
+    margin-bottom: 1em;
+}
+
+.backButton a{
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+}
+
+
+div.imgBackground {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+}
+
+div.imgBackground img{
+    height: 70%;
+    max-width: 70%;
+}
+
+
+.bill {
+    position:relative;
+    border: 2px solid #dee2e6;
+    z-index: 10;
+}
+
+
+.billheader {
+    padding: 2em;
+    display: flex;
+}
+
+.logo {
+    flex: 50%;
+}
+.billImage{
+    width: 250px;
+    height: 150px;
+}
+.date {
+    flex: 50%;
+    padding-left: 2em;
+}
+.date strong{
+    display:flex;
+    justify-content:space-between;
+    text-align:justify;
+}
+.date strong{
+    justify-content:flex-start;
+}
+
+.text{
+    padding-left:0.5em;
+    font-weight:400;
+}
+
+.billnumber {
+    flex: 100%;
+    padding: 2em;
+    padding-top:1em;
+    padding-bottom:0;
+}
+
+
+.bussinesHeader {
+    display: flex;
+    flex: 100%;
+    padding: 2em;
+    padding-top: 1em;
+    padding-bottom: 0;
+    padding-top: 0;
+}
+
+.bussinesHeaderContent {
+    padding: 2em;
+    padding-top: 1em;
+    padding-bottom: 0;
+    padding-left: 0;
+    padding-right: 0.5em;
+    flex: 50%;
+    margin: 2em;
+    margin-left: 0;
+    margin-top:0;
+    margin-bottom: 0;
+    width: 50%;
+}
+.bussinesHeaderContent:nth-child(2){
+     padding-left: 2em;
+}
+.bussinesHeaderContent strong{
+    width: 50%;
+    font-size: 1.5em;
+}
+
+.BussinesBody{
+    display: flex;
+    flex: 100%;
+    padding-top: 0;
+}
+
+.bussines {
+    border: 2px solid #dee2e6;
+    padding: 2em;
+    padding-top: 1em;
+    padding-bottom: 1em;
+    padding-right: 0.5em;
+    flex: 50%;
+    margin: 2em;
+    margin-top: 1em;
+    width: 50%;
+    background-color: white;
+}
+.bussines p{
+    width: 50%;
+}
+
+.billbussinesdetail {
+}
+
+.clientdetail {
+}
+
+.detailsHeader {
+    padding: 2em;
+    padding-top: 1em;
+    padding-bottom: 0;
+    padding-right: 0.5em;
+    flex: 100%;
+    margin-top: 0;
+    width: 50%;
+}
+.detailsHeader strong{
+    font-size: 1.5em;
+}
+
+.details {
+    padding: 2em;
+    padding-top: 0;
+    padding-bottom: 0;
+    flex: 100%;
+    margin-top: 0;
+    background-color: white;
+}
+
+
+.bussinesFooter{
+    display: flex;
+    flex: 100%;
+    padding: 2em;
+    padding-top: 1em;
+    padding-bottom: 0;
+    padding-top: 0;
+}
+
+.bussinesFooterContent {
+    padding: 2em;
+    padding-top: 1em;
+    padding-bottom: 0;
+    padding-left: 0;
+    padding-right: 0.5em;
+    flex: 50%;
+    margin: 2em;
+    margin-left: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    width: 50%;
+}
+
+.bussinesFooterContent:nth-child(2) {
+    padding-left: 2em;
+}
+
+.bussinesFooterContent strong {
+    width: 50%;
+    font-size: 1.5em;
+}
+
+
+.BussinesFooterBody {
+    display: flex;
+    flex: 100%;
+    padding-top: 0;
+}
+
+
+
+.bussinesNote,
+.bussinesTotal {
+    border: 2px solid #dee2e6;
+    padding: 2em;
+    padding-top: 1em;
+    padding-bottom: 1em;
+    padding-right: 0.5em;
+    flex: 50%;
+    margin: 2em;
+    margin-top: 1em;
+    width: 50%;
+    background-color:white;
+}
+
+.bussinesNote{
+    height:150px;
+}
+
+.bussinesTotal {
+    border: 0;
+    padding: 0;
+}
+.bussinesTotal table{
+    border: 2px solid #eee;
+}
+
+/*Errors */
+
+.error {
+   font-size: 15em;
+}
+.errorDetail {
+    font-size: 2em;
+}
+
+
+
+
+
+.loader {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: rgba( 255, 255, 255, .8 ) url('Images/ajax-loader.gif') 50% 50% no-repeat;
+}
+
+/* When the body has the loading class, we turn
+   the scrollbar off with overflow:hidden */
+#BodyContainer.loading .loader {
+    overflow: hidden;
+}
+
+/* Anytime the body has the loading class, our
+   modal element will be visible */
+#BodyContainer.loading .loader {
+    display: block;
+}
+
+
+/*shopping*/
+
+#ShoppingTable_wrapper,
+#ShoppingTable_wrapper div,
+.shoppingItem {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*mobile*/
+@media (max-width : 768px) {
+
+
+    #page-content-wrapper {
+        padding-left: 0px;
+        transition: padding 0.5s ease-in-out;
+    }
+
+    #menu-toggle{
+        display:none;
+    }
+    #sidebar-wrapper{
+        display:none;
+    }
+
+
+    .home {
+        flex-wrap: wrap;
+    }
+
+    .homeItem {
+        flex: 50%;
+        border-left: 0;
+    }
+    
+    
+    .siteLink {
+        flex-wrap: wrap;
+    }
+
+    .siteLinkItem {
+        flex: 100%;
+        margin: 0.5em;
+    }
+}
+
+
+
+/*laptop*/
+@media (min-width : 769px) and (max-width : 1024px) {
+    #menu-horizontal{
+        display:none;
+    }
+    #navbarNav {
+        justify-content: flex-end !important;
+    }
+
+    .imgBackground {
+        position: absolute;
+        left: 20%;
+        transform: translateX(-20%);
+        z-index: -1;
+    }
+
+
+    .homeItem {
+        border-left: 1px solid #eee;
+    }
+
+    .homeItem:first-child {
+         border-left: 0;
+     }
+    .homeItem:nth-child(3) {
+         border-left: 0;
+     }
+
+    .siteLink {
+        flex-wrap: wrap;
+    }
+
+    .siteLinkItem {
+        margin-top: 0.5em;
+        flex: 25%;
+    }
+
+
+
+}
+
+
+
+
+/*tv*/
+@media (min-width : 1025px){
+    #menu-horizontal {
+        display: none;
+    }
+
+    #navbarNav {
+        justify-content: flex-end !important;
+    }
+}
+
+
+    @media print {
+        #printButton {
+            display: none;
+        }
+
+        header, footer, nav, aside {
+            display: none;
+        }
+
+        div.imgBackground {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: -1;
+            width: 100%;
+            height: 80%;
+        }
+
+        div.imgBackground img {
+            height: 70%;
+            max-width: 70%;
+        }
+
+    }

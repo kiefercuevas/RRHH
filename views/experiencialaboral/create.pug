@@ -1,0 +1,143 @@
+extends ../layout
+
+block content
+  div(class="p-3 mb-0")
+    div(class="row")
+      if experiencias != null         
+        h2( class="col-lg-8 ml-0") Editar Experiencias
+      else
+         h2( class="col-lg-8 ml-0") Crear Experiencias
+      hr
+      div(class="col-lg-4 d-flex justify-content-lg-end")
+        a(id="backBtn" class="btn btn-info my-2 fas fa-times-circle" href="/api/experiencias")
+
+  form(id="form" action="/api/experiencias" class="ml-3")
+    div(class="row ")
+      div(class="col-lg-6")
+        div(class="form-group col-lg-12 pl-0")
+          label(for="Empresa" class="control-label") Empresa
+          if experiencia != null
+            input(type="hidden", id="experiencias", value= JSON.stringify(experiencia))
+            input(id="Empresa" type="text" class="form-control col-lg-8" placeHolder="descripcion de la empresa" value=experiencia.Empresa)
+          else
+            input(id="Empresa" type="text" class="form-control col-lg-8" placeHolder="descripcion de la empresa")
+        div(class="form-group col-lg-12 pl-0")
+          label(for="PuestoOcupado" class="control-label") Puesto Ocupado
+          if experiencia != null
+            input(id="PuestoOcupado" type="text" class="form-control col-lg-8" placeHolder="Puesto ocupado en la empresa" value=experiencia.PuestoOcupado)
+          else
+            input(id="PuestoOcupado" type="text" class="form-control col-lg-8" placeHolder="Puesto ocupado en la empresa")
+        div(class="form-group col-lg-12 pl-0")
+          label(for="FechaDesde" class="control-label") Fecha Desde
+          if experiencia != null
+            -var date = new Date(Date.parse(experiencia.FechaDesde)).toISOString().split('T')[0]
+            input(id="FechaDesde" type="Date" class="form-control col-lg-8" value=date)
+          else
+            input(id="FechaDesde" type="Date" class="form-control col-lg-8")
+        div(class="form-group col-lg-12 pl-0")
+          label(for="FechaHasta" class="control-label")  Fecha Hasta
+          if experiencia != null
+            -var date = new Date(Date.parse(experiencia.FechaHasta)).toISOString().split('T')[0]
+            input(id="FechaHasta" type="Date" class="form-control col-lg-8" value=date)
+          else
+            input(id="FechaHasta" type="Date" class="form-control col-lg-8")
+        div(class="form-group col-lg-12 pl-0")
+          label(for="Salario" class="control-label") Salario
+          if experiencia != null
+            input(id="Salario" type="text" class="form-control col-lg-8" placeHolder="Salario" value=experiencia.Salario)
+          else
+            input(id="Salario" type="text" class="form-control col-lg-8" placeHolder="Salario")
+    div(class="form-group col-lg-12 pl-0")
+      if experiencia != null 
+        button(type="submit" class="btn btn-primary col-lg-3 py-2 my-2") Editar
+      else
+        button(type="submit" class="btn btn-primary col-lg-3 py-2 my-2") Guardar
+
+append scripts
+  script.
+    $(document).ready(function () {
+
+          const tokenName = "RRHHtoken";
+          const addBtn = document.querySelector("#backBtn");
+          const url = addBtn.getAttribute('href');
+          const token = window.localStorage.getItem(tokenName);
+          addBtn.setAttribute("href", `${url+"?token="+token}`);
+          const headers = {'Content-Type': 'application/json','x-auth-token': token};
+          const redirectUrl = `/api/experiencias?token=${token}`;
+
+          let form = document.querySelector("#form");
+          let experiencias = document.querySelector("#experiencias");
+
+      form.addEventListener('submit',function (e){
+        e.preventDefault();
+        const Empresa = document.querySelector("#Empresa").value;
+        const Salario = document.querySelector("#Salario").value;
+        const PuestoOcupado = document.querySelector("#PuestoOcupado").value;
+        const FechaDesde = document.querySelector("#FechaDesde").value;
+        const FechaHasta = document.querySelector("#FechaHasta").value;
+        
+        if(Empresa.length === 0 || Empresa.length < 3){
+          bootbox.alert("La Empresa debe tener al menos 3 caracteres");
+        }
+        else if(PuestoOcupado.length === 0 || PuestoOcupado.length < 3){
+          bootbox.alert("El Puesto Ocupado debe tener al menos 3 caracteres");
+        }
+        else if(Salario <= 0){
+          bootbox.alert("El salario debe ser mayor a 0");
+        }
+        else if (!FechaDesde){
+           bootbox.alert("La fecha desde no puede estar vacia");
+        }
+        else if (!FechaHasta){
+           bootbox.alert("El fecha hasta no puede estar vacia");
+        }
+        else if(FechaDesde >= FechaHasta){
+          bootbox.alert("La fechaHasta debe ser mayor que la fechaDesde");
+        }
+        else{
+          let data = {Empresa,Salario,FechaDesde,FechaHasta,PuestoOcupado};
+            if(experiencias != null){
+                fetch(`/api/experiencias/${JSON.parse(experiencias.value)._id}`, {
+                    method: 'PUT', 
+                    mode: 'cors', 
+                    cache: 'no-cache',
+                    credentials: 'same-origin',
+                    headers: headers,
+                    redirect: 'follow',
+                    referrer: 'no-referrer',
+                    body: JSON.stringify(data)})
+                .then(response => response.json())
+                .then(data => {
+                  if(data !== null && !data.Errmessage){
+                    bootbox.alert("Se ha editado la experiencia correctamente",() => {
+                        window.location = redirectUrl;
+                    });
+                  }
+                  else bootbox.alert(data.Errmessage);
+                })
+                .catch(err => bootbox.alert('Ha ocurrido un error '+err));
+            }else{
+              fetch("/api/experiencias", {
+                    method: 'POST', 
+                    mode: 'cors', 
+                    cache: 'no-cache',
+                    credentials: 'same-origin',
+                    headers: headers,
+                    redirect: 'follow',
+                    referrer: 'no-referrer',
+                    body: JSON.stringify(data)})
+                .then(response => response.json())
+                .then(data => {
+                  if(data !== null && !data.Errmessage){
+                    bootbox.alert("Se ha creado la experiencias correctamente",() => {
+                        window.location = redirectUrl;
+                    });
+                  }
+                  else bootbox.alert(data.Errmessage);
+                })
+                .catch(err => bootbox.alert('Ha ocurrido un error '+err));
+            }
+          //
+        }
+      })
+    })

@@ -1,0 +1,136 @@
+extends ../layout
+
+block content
+  div(class="p-3 mb-0")
+    div(class="row")
+      if puesto != null         
+        h2( class="col-lg-8 ml-0") Editar puesto
+      else
+         h2( class="col-lg-8 ml-0") Crear puesto
+      hr
+      div(class="col-lg-4 d-flex justify-content-lg-end")
+        a(id="backBtn" class="btn btn-info my-2 fas fa-times-circle" href="/api/puestos")
+
+  form(id="form" action="/api/puestos" class="ml-3")
+    div(class="row ")
+      div(class="col-lg-6")
+        div(class="form-group col-lg-12 pl-0")
+          label(for="Nombre" class="control-label") Nombre
+          if puesto != null
+            input(type="hidden", id="puesto", value= JSON.stringify(puesto))
+            input(id="nombre" type="text" class="form-control col-lg-8" placeHolder="nombre del puesto" value=puesto.Nombre)
+          else
+            input(id="nombre" type="text" class="form-control col-lg-8" placeHolder="nombre del puesto")
+        div(class="form-group col-lg-12 pl-0")
+          label(for="NivelRiesgo" class="control-label") Nivel de Riesgo
+            select(id="NivelRiesgo" type="text" class="form-control col-lg-12")
+              option(value="Bajo") Bajo
+              option(value="Medio") Medio
+              option(value="Alto") Alto
+        div(class="form-group col-lg-12 pl-0")
+          label(for="SalarioMinimo" class="control-label") Salario Minimo
+          if puesto != null
+            input(id="SalarioMinimo" type="number" class="form-control col-lg-8" placeHolder="salario minimo del puesto" value=puesto.SalarioMinimo)
+          else
+            input(id="SalarioMinimo" type="number" class="form-control col-lg-8" placeHolder="salario minimo del puesto" value="0")
+        div(class="form-group col-lg-12 pl-0")
+          label(for="SalarioMaximo" class="control-label") Salario Maximo
+          if puesto != null
+            input(id="SalarioMaximo" type="number" class="form-control col-lg-8" placeHolder="salario maximo del puesto" value=puesto.SalarioMaximo)
+          else
+            input(id="SalarioMaximo" type="number" class="form-control col-lg-8" placeHolder="salario maximo del puesto" value="0")
+    div(class="form-group col-lg-12 pl-0")
+      if puesto != null 
+        button(type="submit" class="btn btn-primary col-lg-3 py-2 my-2") Editar
+      else
+        button(type="submit" class="btn btn-primary col-lg-3 py-2 my-2") Guardar
+
+append scripts
+  script.
+    $(document).ready(function () {
+
+          const tokenName = "RRHHtoken";
+          const addBtn = document.querySelector("#backBtn");
+          const url = addBtn.getAttribute('href');
+          const token = window.localStorage.getItem(tokenName);
+          addBtn.setAttribute("href", `${url+"?token="+token}`);
+          const headers = {'Content-Type': 'application/json','x-auth-token': token};
+          const redirectUrl = `/api/puestos?token=${token}`;
+
+      let form = document.querySelector("#form");
+      let puesto = document.querySelector("#puesto");
+
+      form.addEventListener('submit',function (e){
+        e.preventDefault();
+        let Nombre = document.querySelector("#nombre").value;
+        let NivelRiesgo = document.querySelector("#NivelRiesgo").value;
+        let SalarioMinimo = parseFloat(document.querySelector("#SalarioMinimo").value);
+        let SalarioMaximo = parseFloat(document.querySelector("#SalarioMaximo").value);
+        
+        if(Nombre.length === 0 || Nombre.length < 3){
+          bootbox.alert("El nombre debe tener al menos 3 caracteres");
+        }
+        else if(NivelRiesgo.length === 0){
+          bootbox.alert("Debe Elegir un nivel de riesgo");
+        }
+        else if(!["Alto","Bajo","Medio"].includes(NivelRiesgo)){
+          bootbox.alert("El nivel de riesgo debe ser Alto, Medio o Bajo");   
+        }else if (!SalarioMinimo){
+           bootbox.alert("El salario minimo no puede estar vacio");
+        }
+        else if (!SalarioMaximo){
+           bootbox.alert("El salario maximo no puede estar vacio");
+        }
+        else if(SalarioMinimo <= 0){
+          bootbox.alert("El salario minimo debe ser mayor a 0");
+        }
+        else if(SalarioMinimo >= SalarioMaximo){
+          bootbox.alert("El salario minimo debe ser menor al salario maximo");
+        }
+        else{
+          let data = {Nombre,NivelRiesgo,SalarioMaximo,SalarioMinimo};
+            if(puesto != null){
+                fetch(`/api/puestos/${JSON.parse(puesto.value)._id}`, {
+                    method: 'PUT', 
+                    mode: 'cors', 
+                    cache: 'no-cache',
+                    credentials: 'same-origin',
+                    headers: headers,
+                    redirect: 'follow',
+                    referrer: 'no-referrer',
+                    body: JSON.stringify(data)})
+                .then(response => response.json())
+                .then(data => {
+                  if(data !== null && !data.Errmessage){
+                    bootbox.alert("Se ha editado el puesto correctamente",() => {
+                        window.location = redirectUrl;
+                    });
+                  }
+                  else bootbox.alert(data.Errmessage);
+                })
+                .catch(err => bootbox.alert('Ha ocurrido un error '+err));
+            }else{
+              fetch("/api/puestos", {
+                    method: 'POST', 
+                    mode: 'cors', 
+                    cache: 'no-cache',
+                    credentials: 'same-origin',
+                    headers: headers,
+                    redirect: 'follow',
+                    referrer: 'no-referrer',
+                    body: JSON.stringify(data)})
+                .then(response => response.json())
+                .then(data => {
+                  if(data !== null && !data.Errmessage){
+                    bootbox.alert("Se ha creado el puesto correctamente",() => {
+                        window.location = redirectUrl;
+                    });
+                  }
+                  else bootbox.alert(data.Errmessage);
+                })
+                .catch(err => bootbox.alert('Ha ocurrido un error '+err));
+            }
+          //
+        }
+      })
+    })

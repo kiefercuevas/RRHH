@@ -1,0 +1,11 @@
+extends layout
+
+block content
+  div(class="p-3 mb-0")
+    div(class="row")
+      h1(class="col-lg-8 ml-0") #{ErrMessage}
+      hr
+  if user == null 
+    a(id="btningresar" href="/api/auth/login" class="btn btn-primary p-3 ml-3") Ingresar
+  if clearToken != true
+    a(id="clearToken" href="/api/auth/login" class="btn btn-primary p-3 ml-3") Ingresar

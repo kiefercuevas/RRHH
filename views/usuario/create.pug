@@ -1,0 +1,114 @@
+extends ../layout
+
+block content
+  div(class="p-3 mb-0")
+    div(class="row")
+      if usuario != null         
+        h2( class="col-lg-8 ml-0") Editar usuario
+      else
+         h2( class="col-lg-8 ml-0") Crear usuario
+      hr
+      div(class="col-lg-4 d-flex justify-content-lg-end")
+        a(id="backBtn" class="btn btn-info my-2 fas fa-times-circle" href="/api/usuarios")
+
+  form(id="form" action="/api/usuarios" class="ml-3" FormMethod="POST")
+    div(class="row ")
+      div(class="col-lg-6")
+        div(class="form-group col-lg-12 pl-0")
+          label(for="Nombre" class="control-label") Nombre
+          if usuario
+            input(type="hidden", id="usuario", value= JSON.stringify(usuario))
+            input(id="Nombre" type="text" class="form-control col-lg-8" placeHolder="nombre del usuario" value=usuario.Nombre)
+          else
+            input(id="Nombre" type="text" class="form-control col-lg-8" placeHolder="nombre del usuario")
+        if !usuario
+          div(class="form-group col-lg-12 pl-0")
+            label(for="Clave" class="control-label") Clave
+            input(id="Clave" type="password" class="form-control col-lg-8" placeHolder="clave del usuario")
+        
+    div(class="form-group col-lg-12 pl-0")
+      if usuario != null 
+        button(type="submit" class="btn btn-primary col-lg-3 py-2 my-2") Editar
+      else
+        button(type="submit" class="btn btn-primary col-lg-3 py-2 my-2") Guardar
+
+append scripts
+  script.
+    $(document).ready(function () {
+          const tokenName = "RRHHtoken";
+          const addBtn = document.querySelector("#backBtn");
+          const url = addBtn.getAttribute('href');
+          const token = window.localStorage.getItem(tokenName);
+          addBtn.setAttribute("href", `${url+"?token="+token}`);
+          const headers = {'Content-Type': 'application/json','x-auth-token': token};
+          const redirectUrl = `/api/usuarios?token=${token}`;
+
+      let form = document.querySelector("#form");
+      let usuario = document.querySelector("#usuario");
+      
+      form.addEventListener('submit',function (e){
+        e.preventDefault();
+        
+        let Nombre = document.querySelector("#Nombre").value;
+        let Clave = document.querySelector("#Clave");
+
+        if(Clave !== null)
+          Clave = Clave.value;
+        else
+          Clave = null;
+        
+        if(Nombre.length === 0 || Nombre.length < 3){
+          bootbox.alert("El nombre debe tener al menos 3 caracteres");
+          noterror= false;
+        }else if(Clave !== null && (Clave.length === 0 || Clave.length < 6)){
+          bootbox.alert("La clave debe tener al menos 6 caracteres");
+          noterror= false;
+        }else{
+          let data = {Nombre,Clave};
+          if(usuario != null){
+                fetch(`/api/usuarios/${JSON.parse(usuario.value)._id}`, {
+                    method: 'PUT', 
+                    mode: 'cors', 
+                    cache: 'no-cache',
+                    credentials: 'same-origin',
+                    headers: headers,
+                    redirect: 'follow',
+                    referrer: 'no-referrer',
+                    body: JSON.stringify({Nombre})})
+                .then(response => response.json())
+                .then(data => {
+                  if(data !== null && !data.Errmessage){
+                    bootbox.alert("Se ha editado el usuario correctamente",() => {
+                        window.location = redirectUrl;
+                    });
+                  }
+                  else bootbox.alert(data.Errmessage);
+                })
+                .catch(err => bootbox.alert('Ha ocurrido un error '+err));
+            }else{
+              fetch("/api/usuarios", {
+                    method: 'POST', 
+                    mode: 'cors', 
+                    cache: 'no-cache',
+                    credentials: 'same-origin',
+                    headers: headers,
+                    redirect: 'follow',
+                    referrer: 'no-referrer',
+                    body: JSON.stringify(data)})
+                .then(response => response.json())
+                .then(data => {
+                  if(data !== null && !data.Errmessage){
+                    bootbox.alert("Se ha creado el usuario correctamente",() => {
+                        window.location = redirectUrl;
+                    });
+                  }
+                  else bootbox.alert(data.Errmessage);
+                })
+                .catch(err => bootbox.alert('Ha ocurrido un error '+err));
+            }
+        }
+       
+          //
+        
+      })
+    })

@@ -1,0 +1,72 @@
+extends ../layout
+
+block content
+  div(class="p-3 mb-0")
+    div(class="row")
+      h2( class="col-lg-8 ml-0") Registrarse
+      hr
+
+  form(id="form" action="/api/auth/register" class="ml-3" FormMethod="POST")
+    div(class="row ")
+      div(class="col-lg-6")
+        div(class="form-group col-lg-12 pl-0")
+          label(for="Nombre" class="control-label") Nombre
+          input(id="Nombre" type="text" class="form-control col-lg-8" placeHolder="nombre de usuario")
+        div(class="form-group col-lg-12 pl-0")
+          label(for="Clave" class="control-label") Clave
+          input(id="Clave" type="password" class="form-control col-lg-8" placeHolder="clave de usuario")
+        div(class="form-group col-lg-12 pl-0")
+          label(for="ConfirmarClave" class="control-label") Confirmar Clave
+          input(id="ConfirmarClave" type="password" class="form-control col-lg-8" placeHolder="confirmar clave de usuario")
+    div(class="form-group col-lg-12 pl-0")
+        button(type="submit" class="btn btn-primary col-lg-3 py-2 my-2") Registrarse
+        a(href="/api/auth/login" class="btn btn-secondary col-lg-3 py-2 my-2 ml-2") Logearse
+
+append scripts
+  script.
+    const token = window.localStorage.getItem("RRHHtoken");
+    if(token) window.location.href = `/api/?token=${token}`;
+    $(document).ready(function () {
+      let form = document.querySelector("#form");
+
+      form.addEventListener('submit',function (e){
+        e.preventDefault();
+
+        let Nombre = document.querySelector("#Nombre").value;
+        let Clave = document.querySelector("#Clave").value;
+        let ConfirmClave = document.querySelector("#ConfirmarClave").value;
+
+        if(Nombre.length == 0 || Nombre.length < 3){
+          bootbox.alert("El nombre debe tener al menos 3 caracteres");
+        }else if(Clave.length == 0 || Clave.length < 6){
+          bootbox.alert("La clave debe tener al menos 6 caracteres");
+        }
+        else if(ConfirmClave !== Clave){
+          bootbox.alert("Las claves no coinciden");
+        }
+        else{
+              let data = {Nombre,Clave};
+              fetch("/api/auth/register", {
+                    method: 'POST', 
+                    mode: 'cors', 
+                    cache: 'no-cache',
+                    credentials: 'same-origin',
+                    headers: {'Content-Type': 'application/json',},
+                    redirect: 'follow',
+                    referrer: 'no-referrer',
+                    body: JSON.stringify(data)})
+                .then(response => response.json())
+                .then(data => {
+                  if(data !== null && !data.Errmessage){
+                    window.localStorage.setItem("RRHHtoken",data.token);
+                    window.location = `/api/?token=${data.token}`;
+                  }
+                  else bootbox.alert(data.Errmessage);
+                })
+                .catch(err => bootbox.alert('Ha ocurrido un error '+err));
+          }
+          //
+        });
+
+
+      });

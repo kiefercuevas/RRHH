@@ -1,0 +1,96 @@
+extends ../layout
+
+block content
+  div(class="p-3 mb-0")
+    div(class="row")
+      if idioma != null         
+        h2( class="col-lg-8 ml-0") Editar idioma
+      else
+         h2( class="col-lg-8 ml-0") Crear idioma
+      hr
+      div(class="col-lg-4 d-flex justify-content-lg-end")
+        a(id="backBtn" class="btn btn-info my-2 fas fa-times-circle" href="/api/idiomas")
+
+  form(id="form" action="/api/idiomas" class="ml-3" FormMethod="POST")
+    div(class="row ")
+      div(class="col-lg-6")
+        div(class="form-group col-lg-12 pl-0")
+          label(for="Nombre" class="control-label") Nombre
+          if idioma != null
+            input(type="hidden", id="idioma", value= JSON.stringify(idioma))
+            input(id="nombre" type="text" class="form-control col-lg-8" placeHolder="nombre del idioma" value=idioma.Nombre)
+          else
+            input(id="nombre" type="text" class="form-control col-lg-8" placeHolder="nombre del idioma")
+    div(class="form-group col-lg-12 pl-0")
+      if idioma != null 
+        button(type="submit" class="btn btn-primary col-lg-3 py-2 my-2") Editar
+      else
+        button(type="submit" class="btn btn-primary col-lg-3 py-2 my-2") Guardar
+
+append scripts
+  script.
+    $(document).ready(function () {
+
+          const tokenName = "RRHHtoken";
+          const addBtn = document.querySelector("#backBtn");
+          const url = addBtn.getAttribute('href');
+          const token = window.localStorage.getItem(tokenName);
+          addBtn.setAttribute("href", `${url+"?token="+token}`);
+          const headers = {'Content-Type': 'application/json','x-auth-token': token};
+          const redirectUrl = `/api/idiomas?token=${token}`;
+
+      let form = document.querySelector("#form");
+      let idioma = document.querySelector("#idioma");
+      
+      form.addEventListener('submit',function (e){
+        e.preventDefault();
+        let nombre = document.querySelector("#nombre").value;
+        if(nombre.length == 0 || nombre.length < 3){
+          bootbox.alert("El nombre debe tener al menos 3 caracteres");
+        }else{
+          let data = {Nombre:nombre};
+            if(idioma != null){
+                fetch(`/api/idiomas/${JSON.parse(idioma.value)._id}`, {
+                    method: 'PUT', 
+                    mode: 'cors', 
+                    cache: 'no-cache',
+                    credentials: 'same-origin',
+                    headers: headers,
+                    redirect: 'follow',
+                    referrer: 'no-referrer',
+                    body: JSON.stringify(data)})
+                .then(response => response.json())
+                .then(data => {
+                  if(data !== null && !data.Errmessage){
+                    bootbox.alert("Se ha editado el idioma correctamente",() => {
+                        window.location = redirectUrl;
+                    });
+                  }
+                  else bootbox.alert(data.Errmessage);
+                })
+                .catch(err => bootbox.alert('Ha ocurrido un error '+err));
+            }else{
+              fetch("/api/idiomas", {
+                    method: 'POST', 
+                    mode: 'cors', 
+                    cache: 'no-cache',
+                    credentials: 'same-origin',
+                    headers: headers,
+                    redirect: 'follow',
+                    referrer: 'no-referrer',
+                    body: JSON.stringify(data)})
+                .then(response => response.json())
+                .then(data => {
+                  if(data !== null && !data.Errmessage){
+                    bootbox.alert("Se ha creado el idioma correctamente",() => {
+                        window.location = redirectUrl;
+                    });
+                  }
+                  else bootbox.alert(data.Errmessage);
+                })
+                .catch(err => bootbox.alert('Ha ocurrido un error '+err));
+            }
+          //
+        }
+      })
+    })

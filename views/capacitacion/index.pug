@@ -1,0 +1,134 @@
+extends ../layout
+
+block content
+  div(class="container mb-2")
+    div(class="express render pug")
+      h2 Puestos
+      a(id="addBtn" href=`/api/capacitaciones/create?token=` class="btn btn-primary")
+        i(class="fa fa-plus") Agregar
+  br
+  table(id="capacitacionTable" class="table table-hover table-responsive-md table-bordered ")
+    thead(class="thead-dark")
+      tr
+        th(scope="col") Descripcion
+        th(scope="col") Nivel
+        th(scope="col") FechaDesde
+        th(scope="col") FechaHasta
+        th(scope="col") Institucion
+        th(scope="col") Acciones
+
+append scripts
+  script(src="/bower_components/datatables/js/jquery.dataTables.min.js")
+  script.
+        $(document).ready(function () {
+
+          const tokenName = "RRHHtoken";
+          const addBtn = document.querySelector("#addBtn");
+          const url = addBtn.getAttribute('href');
+          const token = window.localStorage.getItem(tokenName);
+          addBtn.setAttribute("href", `${url+token}`);
+
+          var capacitacionTable = $("#capacitacionTable");
+            var datatable = capacitacionTable.DataTable(
+                {
+                    ajax: {
+                        url: "/api/capacitaciones/getCapacitacion",
+                        dataSrc: "",
+                        headers: { 'x-auth-token': token},
+                        error: function (err) {
+                                if(err.status = 401)
+                                 bootbox.alert("No posee un token de autorizacion",() => {
+                                    window.location = "/api/auth/login";
+                                 });
+                                else if(err.status = 400){
+                                    bootbox.alert("El token de autorizacion es invalido",() => {
+                                    window.location = "/api/auth/login";
+                                });
+                                }
+                                else if(err.status = 403){
+                                    bootbox.alert("El Acceso denegado",() => {
+                                    window.location = "/api/";
+                                });
+                            }
+                        }
+                    },
+                    columns: [
+                        {
+                            data: "Descripcion",
+                        },
+                        {
+                            data: "Nivel",
+                        },
+                        {
+                            data: "FechaDesde",
+                            render: function (data) {
+                                return new Date(Date.parse(data)).toLocaleDateString("en-US")
+                            },
+                        },
+                        {
+                            data: "FechaHasta",
+                            render: function (data) {
+                                return new Date(Date.parse(data)).toLocaleDateString("en-US")
+                            },
+                        },
+                        {
+                            data: "Institucion",
+                        },
+                        {
+                            data: "_id",
+                            render: function (data) {
+                                return `<a class="btn btn-warning btn-xs fa fa-edit" href="/api/capacitaciones/editar/${data}?token=${token}"></a>`
+                            },
+                        }
+                    ],
+                    "columnDefs": [
+                        { "name": "Descripcion","orderable": true, "targets": 0 },
+                        { "name": "Nivel","orderable": true, "targets": 1 },
+                        { "name": "FechaDesde","orderable": true, "targets": 2 },
+                        { "name": "FechaHasta","orderable": true, "targets": 3 },
+                        { "name": "Institucion","orderable": true, "targets": 4 },
+                    ],
+                    "autoWidth": false,
+                    "language": {
+                        lengthMenu: "Mostrar _MENU_ registros por pagina",
+                        zeroRecords: "No hay coincidencias",
+                        infoEmpty: "No hay registros disponibles",
+                        info: "Mostrando pagina _PAGE_ de _PAGES_",
+                        infoFiltered: "(filtrado de _MAX_ registros)",
+                        sSearch: "<i class='fa fa-search'></i>",
+                        loadingRecords: "Cargando...",
+                        processing: "Cargando registros",
+                        paginate: {
+                            next: "Siguiente",
+                            previous: "Anterior"
+                        },
+                    },
+                });
+
+            //- capacitacionTable.on("click", ".js-remove", function () {
+            //-     var button = $(this);
+            //-     bootbox.confirm("Estas seguro de que deseas eliminar esta capacitacion", function (result) {
+            //-         if (result) {
+            //-             $.ajax({
+            //-                 type: "DELETE",
+            //-                 url: `/api/capacitacion/${button.attr("data-id")}`,
+            //-                 success: function (data) {
+            //-                     if (data != null) {
+            //-                         datatable.row(button.parents("tr"))
+            //-                             .remove()
+            //-                             .draw();
+            //-                         bootbox.alert("Se ha borrado la capacitacion");
+            //-                     } else {
+            //-                         bootbox.alert("No Se ha borrado la capacitacion, error interno");
+            //-                     }
+            //-                 },
+            //-                 error: function (response) {
+            //-                     bootbox.alert(response.responseText);
+            //-                 }
+            //-             });
+            //-         }
+            //-     });
+
+            //- });
+        });
+    
